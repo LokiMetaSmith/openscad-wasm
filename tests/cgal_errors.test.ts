@@ -4,7 +4,14 @@ import OpenScad from "../build/openscad.js";
 Deno.test({
   name: "CGAL Error: precondition violation with twisted linear_extrude",
   fn: async () => {
-    const instance = await OpenScad({ noInitialRun: true });
+    let stderr = "";
+
+    const instance = await OpenScad({
+        noInitialRun: true,
+        printErr: (text: string) => {
+            stderr += text + "\n";
+        }
+    });
 
     // A minimal self-contained reproduction of single_cell_filter / flat_end_screw
     // using linear_extrude with a high twist and boolean operations
@@ -25,11 +32,6 @@ Deno.test({
     `;
 
     instance.FS.writeFile("/test.scad", scadContent);
-
-    let stderr = "";
-    instance.printErr = (text: string) => {
-        stderr += text + "\n";
-    };
 
     const code = instance.callMain(["/test.scad", "-o", "out.stl"]);
 
