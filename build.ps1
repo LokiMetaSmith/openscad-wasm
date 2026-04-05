@@ -16,39 +16,22 @@ if (Get-Command "podman" -ErrorAction SilentlyContinue) {
     exit 1
 }
 
-# Define variables
+# Step 1: Build the multi-stage image
+Write-Host "`n[1/2] Building the OpenSCAD WASM image (this will take a while)..." -ForegroundColor Yellow
+& $engine build . -f Dockerfile.windows -t openscad/wasm-release
+if ($LASTEXITCODE -ne 0) {
+    Write-Host "Failed to build the image." -ForegroundColor Red
+    exit $LASTEXITCODE
+}
+
+# Step 2: Extract the artifacts to the local build directory
+Write-Host "`n[2/2] Extracting artifacts..." -ForegroundColor Yellow
+
 $workspacePath = (Get-Location).Path
-# In PowerShell / Docker on Windows, mounting current directory is typically just $PWD, but using standard path mapping
 $mountPath = $workspacePath -replace '\\', '/'
-
-# Step 1: Download and prepare dependencies
-Write-Host "`n[1/4] Preparing libraries and resources..." -ForegroundColor Yellow
-& $engine run --rm -v "${mountPath}:/workspace" -w /workspace debian:bullseye-slim bash -c "apt-get update && apt-get install -y git wget tar make && make libs && make res"
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to prepare libraries." -ForegroundColor Red
-    exit $LASTEXITCODE
-}
-
-# Step 2: Build the base Emscripten image with compiled dependencies
-Write-Host "`n[2/4] Building the base Emscripten image (this will take a while)..." -ForegroundColor Yellow
-& $engine build ./libs -f Dockerfile.base -t openscad/wasm-base-release --build-arg CMAKE_BUILD_TYPE=Release --build-arg MESON_BUILD_TYPE=release --build-arg 'EMSCRIPTEN_FLAGS=-fexceptions -O3' --build-arg EMSCRIPTEN_SDK_TAG=emscripten/emsdk:4.0.10
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to build the base image." -ForegroundColor Red
-    exit $LASTEXITCODE
-}
-
-# Step 3: Build the OpenSCAD WASM image
-Write-Host "`n[3/4] Building OpenSCAD WASM..." -ForegroundColor Yellow
-& $engine build ./libs/openscad -f Dockerfile -t openscad/wasm-release --build-arg CMAKE_BUILD_TYPE=Release --build-arg DOCKER_TAG_BASE=openscad/wasm-base-release --build-arg 'EMSCRIPTEN_FLAGS=-fexceptions -O3'
-if ($LASTEXITCODE -ne 0) {
-    Write-Host "Failed to build the OpenSCAD WASM image." -ForegroundColor Red
-    exit $LASTEXITCODE
-}
-
-# Step 4: Extract the artifacts to the local build directory
-Write-Host "`n[4/4] Extracting artifacts..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Force -Path .\build | Out-Null
-& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/openscad.js /workspace/build/openscad.wasm.js && cp /home/build/openscad.wasm /workspace/build/ && if [ -f /home/build/openscad.wasm.map ]; then cp /home/build/openscad.wasm.map /workspace/build/; fi"
+
+& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/build/openscad.js /workspace/build/openscad.js && cp /home/build/build/openscad.wasm /workspace/build/ && if [ -f /home/build/build/openscad.wasm.map ]; then cp /home/build/build/openscad.wasm.map /workspace/build/; fi"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to extract artifacts." -ForegroundColor Red
     exit $LASTEXITCODE
