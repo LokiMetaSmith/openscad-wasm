@@ -33,7 +33,7 @@ make ENV=Debug build
 
 ## Windows Build
 
-For Windows users (or anyone preferring to skip `make`), you can build the project using `docker compose` and the provided PowerShell script. Make sure you have Docker Desktop and Node/npm installed.
+For Windows users (or anyone preferring to skip `make`), you can build the project using `podman compose` or `docker compose` and the provided PowerShell script. Make sure you have Podman or Docker Desktop, and Node/npm installed.
 
 Run the build script from PowerShell:
 
