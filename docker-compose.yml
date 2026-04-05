@@ -1,0 +1,54 @@
+version: '3.8'
+
+services:
+  # This service fetches the dependencies required to build the WASM binary.
+  # It effectively replaces the `make libs` step locally.
+  prepare:
+    image: debian:bullseye-slim
+    volumes:
+      - .:/workspace
+    working_dir: /workspace
+    command: >
+      bash -c "
+        apt-get update && apt-get install -y git wget tar make &&
+        make libs && make res
+      "
+
+  # Base emscripten build environment that caches compiled dependencies
+  base-build:
+    build:
+      context: ./libs
+      dockerfile: ../Dockerfile.base
+      args:
+        CMAKE_BUILD_TYPE: Release
+        MESON_BUILD_TYPE: release
+        EMSCRIPTEN_FLAGS: "-fexceptions -O3"
+        EMSCRIPTEN_SDK_TAG: emscripten/emsdk:4.0.10
+    image: openscad/wasm-base-release
+
+  # Final build step that creates the OpenSCAD WASM binary
+  wasm-build:
+    build:
+      context: ./libs/openscad
+      dockerfile: ../../Dockerfile
+      args:
+        CMAKE_BUILD_TYPE: Release
+        DOCKER_TAG_BASE: openscad/wasm-base-release
+        EMSCRIPTEN_FLAGS: "-fexceptions -O3"
+    image: openscad/wasm-release
+    depends_on:
+      - base-build
+
+  # Service to extract the built artifacts from the final image into the host `./build` directory
+  extract:
+    image: openscad/wasm-release
+    volumes:
+      - ./build:/workspace/build
+    command: >
+      bash -c "
+        cp /home/build/openscad.js /workspace/build/openscad.wasm.js &&
+        cp /home/build/openscad.wasm /workspace/build/ &&
+        if [ -f /home/build/openscad.wasm.map ]; then cp /home/build/openscad.wasm.map /workspace/build/; fi
+      "
+    depends_on:
+      - wasm-build

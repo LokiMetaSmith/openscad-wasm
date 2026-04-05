@@ -31,6 +31,18 @@ make build
 make ENV=Debug build
 ```
 
+## Windows Build
+
+For Windows users (or anyone preferring to skip `make`), you can build the project using `docker compose` and the provided PowerShell script. Make sure you have Docker Desktop and Node/npm installed.
+
+Run the build script from PowerShell:
+
+```powershell
+.\build.ps1
+```
+
+This will run a multi-stage Docker Compose process that fetches dependencies, builds the Emscripten toolchain, compiles the project, and extracts the WASM files to the `build/` directory.
+
 ## MacOS
 
 On MacOS, the version of Make that ships with the OS (3.81) is not compatible with this makefile, so you'll need to install a modern version of make and use that instead.
