@@ -33,7 +33,7 @@ make ENV=Debug build
 
 ## Windows Build
 
-For Windows users (or anyone preferring to skip `make`), you can build the project using `podman compose` or `docker compose` and the provided PowerShell script. Make sure you have Podman or Docker Desktop, and Node/npm installed.
+For Windows users (or anyone preferring to skip `make`), you can build the project using the native Podman or Docker CLI and the provided PowerShell script. Make sure you have Podman Desktop or Docker Desktop, and Node/npm installed.
 
 Run the build script from PowerShell:
 
@@ -41,7 +41,7 @@ Run the build script from PowerShell:
 .\build.ps1
 ```
 
-This will run a multi-stage Docker Compose process that fetches dependencies, builds the Emscripten toolchain, compiles the project, and extracts the WASM files to the `build/` directory.
+This script will run a multi-stage process that fetches dependencies, builds the Emscripten toolchain, compiles the project, and extracts the WASM files to the `build/` directory using standard container commands (no `compose` required).
 
 ## MacOS
 
