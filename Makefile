@@ -169,7 +169,7 @@ libs/libffi:
 	git clone https://github.com/libffi/libffi.git ${SHALLOW} ${SINGLE_BRANCH} $@
 
 libs/cgal:
-	git clone https://github.com/CGAL/cgal.git ${SHALLOW} --branch v6.0.1 --single-branch $@
+	git clone https://github.com/CGAL/cgal.git ${SHALLOW} --branch v6.1.1 --single-branch $@
 
 libs/eigen:
 	git clone https://gitlab.com/libeigen/eigen.git ${SHALLOW} ${SINGLE_BRANCH} $@
