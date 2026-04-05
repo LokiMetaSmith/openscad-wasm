@@ -3,15 +3,22 @@
 
 Write-Host "Starting OpenSCAD WASM build process for Windows..." -ForegroundColor Cyan
 
-# Check if Docker Compose is available
-if (!(Get-Command "docker" -ErrorAction SilentlyContinue)) {
-    Write-Host "Error: docker is not installed or not in PATH." -ForegroundColor Red
+# Check for Podman first, fallback to Docker
+$engine = ""
+if (Get-Command "podman" -ErrorAction SilentlyContinue) {
+    $engine = "podman"
+    Write-Host "Using podman as the container engine." -ForegroundColor Green
+} elseif (Get-Command "docker" -ErrorAction SilentlyContinue) {
+    $engine = "docker"
+    Write-Host "Using docker as the container engine." -ForegroundColor Green
+} else {
+    Write-Host "Error: Neither podman nor docker is installed or in PATH." -ForegroundColor Red
     exit 1
 }
 
 # Step 1: Download and prepare dependencies
 Write-Host "`n[1/4] Preparing libraries and resources..." -ForegroundColor Yellow
-docker compose run --rm prepare
+& $engine compose run --rm prepare
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to prepare libraries." -ForegroundColor Red
     exit $LASTEXITCODE
@@ -19,7 +26,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 2: Build the base Emscripten image with compiled dependencies
 Write-Host "`n[2/4] Building the base Emscripten image (this will take a while)..." -ForegroundColor Yellow
-docker compose build base-build
+& $engine compose build base-build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to build the base image." -ForegroundColor Red
     exit $LASTEXITCODE
@@ -27,7 +34,7 @@ if ($LASTEXITCODE -ne 0) {
 
 # Step 3: Build the OpenSCAD WASM image
 Write-Host "`n[3/4] Building OpenSCAD WASM..." -ForegroundColor Yellow
-docker compose build wasm-build
+& $engine compose build wasm-build
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to build the OpenSCAD WASM image." -ForegroundColor Red
     exit $LASTEXITCODE
@@ -36,7 +43,7 @@ if ($LASTEXITCODE -ne 0) {
 # Step 4: Extract the artifacts to the local build directory
 Write-Host "`n[4/4] Extracting artifacts..." -ForegroundColor Yellow
 New-Item -ItemType Directory -Force -Path .\build | Out-Null
-docker compose run --rm extract
+& $engine compose run --rm extract
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to extract artifacts." -ForegroundColor Red
     exit $LASTEXITCODE
