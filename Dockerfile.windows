@@ -11,11 +11,14 @@ RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y --no-ins
     tar \
     make \
     ca-certificates \
-    xz-utils
+    xz-utils \
+    dos2unix
 
 WORKDIR /workspace
 # Copy the entire workspace into the container so local code modifications are preserved
 COPY . /workspace/
+# Normalize line endings on patches to prevent git apply failures when built from Windows hosts
+RUN find ./patches -type f -exec dos2unix {} +
 # Make libs directly into /workspace/libs
 RUN make libs
 
