@@ -203,7 +203,9 @@ COPY --from=freetype /emsdk/upstream/emscripten/cache/sysroot /emsdk/upstream/em
 COPY --from=libexpat /emsdk/upstream/emscripten/cache/sysroot /emsdk/upstream/emscripten/cache/sysroot
 COPY --from=prepare /workspace/libs/cairo ./cairo
 COPY emscripten-crossfile.meson ./cairo/
-RUN cd cairo && meson \
+RUN cd cairo && \
+    sed -i "s/subdir('util')/#subdir('util')/g" meson.build && \
+    meson \
       setup \
       ../build \
       --prefix=/emsdk/upstream/emscripten/cache/sysroot \
