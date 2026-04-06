@@ -210,7 +210,9 @@ RUN cd cairo && meson \
       --cross-file=emscripten-crossfile.meson \
       --default-library=static \
       --buildtype=${MESON_BUILD_TYPE} \
-      -Dtests=disabled && \
+      -Dtests=disabled \
+      -Dpixman:tests=disabled \
+      -Dlibpng:tests=disabled && \
     meson install -C ../build
 
 
