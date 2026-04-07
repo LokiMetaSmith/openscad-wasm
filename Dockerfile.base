@@ -117,10 +117,10 @@ RUN cd expat && \
 FROM builder AS zlib
 COPY zlib .
 RUN sed -i 's/option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" ON)/option(ZLIB_BUILD_TESTING "Enable Zlib Examples as tests" OFF)/' CMakeLists.txt && \
+    sed -i 's/zlib SHARED/zlib STATIC/g' CMakeLists.txt && \
     emcmake cmake \
         -DINSTALL_PKGCONFIG_DIR="/emsdk/upstream/emscripten/cache/sysroot/lib/pkgconfig/" \
         -DZLIB_BUILD_TESTING=OFF \
-        -DZLIB_BUILD_SHARED=OFF \
         -B ../build && \
     cmake --build ../build && \
     cmake --install ../build
