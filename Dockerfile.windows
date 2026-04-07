@@ -99,6 +99,7 @@ RUN cd zlib && \
     emcmake cmake \
         -DINSTALL_PKGCONFIG_DIR="/emsdk/upstream/emscripten/cache/sysroot/lib/pkgconfig/" \
         -DZLIB_BUILD_TESTING=OFF \
+        -DZLIB_BUILD_SHARED=OFF \
         -B ../build && \
     cmake --build ../build && \
     cmake --install ../build
