@@ -287,6 +287,7 @@ COPY --from=libzip /emsdk/upstream/emscripten/cache/sysroot /emsdk/upstream/emsc
 COPY --from=prepare /workspace/libs/lib3mf ./lib3mf
 RUN cd lib3mf && emcmake cmake \
         -B ../build \
+        -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
         -DLIB3MF_TESTS=OFF \
         -DUSE_INCLUDED_ZLIB=OFF \
         -DUSE_INCLUDED_LIBZIP=OFF \
