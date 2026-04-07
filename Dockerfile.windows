@@ -40,7 +40,7 @@ RUN apt-get update && \
         libpango-1.0-0 libatk-bridge2.0-0 libxcomposite1 libxdamage1 libxfixes3 \
         libxrandr2 libcairo2 libdrm2 libgbm1
 
-RUN pip3 install meson packaging
+RUN pip3 install cmake meson packaging
 
 ENV CMAKE_BUILD_TYPE=${CMAKE_BUILD_TYPE}
 ENV MESON_BUILD_TYPE=${MESON_BUILD_TYPE}
