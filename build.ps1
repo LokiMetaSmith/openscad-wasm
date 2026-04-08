@@ -31,23 +31,10 @@ $workspacePath = (Get-Location).Path
 $mountPath = $workspacePath -replace '\\', '/'
 New-Item -ItemType Directory -Force -Path .\build | Out-Null
 
-& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/build/openscad.js /workspace/build/openscad.js && cp /home/build/build/openscad.wasm /workspace/build/ && if [ -f /home/build/build/openscad.wasm.map ]; then cp /home/build/build/openscad.wasm.map /workspace/build/; fi"
+& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/build/openscad.js /workspace/build/openscad.js && cp /home/build/build/openscad.wasm /workspace/build/ && if [ -f /home/build/build/openscad.wasm.map ]; then cp /home/build/build/openscad.wasm.map /workspace/build/; fi && cp /workspace/runtime/dist/* /workspace/build/"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to extract artifacts." -ForegroundColor Red
     exit $LASTEXITCODE
-}
-
-# Build fonts JS module
-Write-Host "`nBuilding fonts JS module..." -ForegroundColor Yellow
-# Assuming Node/NPM is installed locally for this final wrap up step
-if (Get-Command "npm" -ErrorAction SilentlyContinue) {
-    Push-Location .\runtime
-    npm install
-    npm run build
-    Pop-Location
-    Copy-Item .\runtime\dist\* .\build\
-} else {
-    Write-Host "npm not found. Skipping runtime build." -ForegroundColor DarkYellow
 }
 
 Write-Host "`nBuild completed successfully! Artifacts are in the 'build' directory." -ForegroundColor Green
