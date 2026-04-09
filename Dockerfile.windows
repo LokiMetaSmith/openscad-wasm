@@ -172,4 +172,5 @@ COPY --from=prepare /workspace/res /workspace/res
 ENV PATH="/emsdk/node/14.18.2_64bit/bin:/emsdk/node/16.20.0_64bit/bin:/emsdk/node/22.16.0_64bit/bin:${PATH}"
 RUN apt-get update && DEBIAN_FRONTEND=noninteractive apt-get install -y npm && \
     npm install && \
+    chmod -R +x ./node_modules/.bin/ && \
     npm run build
