@@ -20,7 +20,7 @@ COPY . /workspace/
 # Normalize line endings on patches to prevent git apply failures when built from Windows hosts
 RUN find ./patches -type f -exec dos2unix {} +
 # Make libs directly into /workspace/libs
-RUN make libs
+RUN make libs && make res
 
 # Stage 2: Build the base image sequentially
 # By doing this in one stage, we avoid the Podman/Docker "COPY --from" overlayfs
