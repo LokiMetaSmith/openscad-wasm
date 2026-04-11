@@ -10,6 +10,12 @@ Deno.test({
         noInitialRun: true,
         printErr: (text: string) => {
             stderr += text + "\n";
+        },
+        locateFile: (path: string) => {
+            if (path === 'openscad.wasm') {
+                return new URL('../build/openscad.wasm', import.meta.url).href;
+            }
+            return path;
         }
     });
 
