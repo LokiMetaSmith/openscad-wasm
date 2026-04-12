@@ -33,7 +33,13 @@ for (const set of sets) {
 }
 
 async function runTest(entrypoint: string, directory: string) {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => {
+      return new URL('../build/' + path, import.meta.url).href;
+    }
+  });
   addFonts(instance);
 
   await loadTestFiles(instance, directory);

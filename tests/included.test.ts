@@ -7,33 +7,57 @@ import { addFonts } from "../build/openscad.fonts.js";
 import { addMCAD } from "../build/openscad.mcad.js";
 
 Deno.test("csg", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   await runTest(instance, "./csg");
 });
 
 Deno.test("cube", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   await runTest(instance, "./cube");
 });
 
 Deno.test("cylinder", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   await runTest(instance, "./cylinder");
 });
 
 Deno.test("lib", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   await runTest(instance, "./lib");
 });
 
 Deno.test("mcad", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   addMCAD(instance);
   await runTest(instance, "./mcad");
 });
 
 Deno.test("text", async () => {
-  const instance = await OpenScad({ noInitialRun: true });
+  const instance = await OpenScad({
+    noInitialRun: true,
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
+  });
   addFonts(instance);
   await runTest(instance, "./text");
 });
@@ -44,6 +68,8 @@ Deno.test("print stderr", async () => {
   const instance = await OpenScad({ 
     noInitialRun: true,
     printErr: (text) => stderr += text + "\n",
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
    });
   await runTest(instance, "./cube");
 
@@ -56,6 +82,8 @@ Deno.test("print stdout", async () => {
   const instance = await OpenScad({ 
     noInitialRun: true,
     print: (text) => stdout += text + "\n",
+    // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+    locateFile: (path: string) => new URL('../build/' + path, import.meta.url).href
    });
   await runTest(instance, "./cube", "-");
 

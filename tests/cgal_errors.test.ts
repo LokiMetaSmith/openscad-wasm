@@ -11,8 +11,10 @@ Deno.test({
         printErr: (text: string) => {
             stderr += text + "\n";
         },
+        // @ts-ignore: locateFile is a valid Emscripten option but missing from InitOptions type
+        locateFile: (path: string) => { return new URL('../build/' + path, import.meta.url).href; }
         // @ts-ignore: wasmBinary is a valid Emscripten option but missing from InitOptions type
-        wasmBinary: Deno.readFileSync(new URL("../build/openscad.wasm", import.meta.url)),
+        //wasmBinary: Deno.readFileSync(new URL("../build/openscad.wasm", import.meta.url)),
     });
 
     // A minimal self-contained reproduction of single_cell_filter / flat_end_screw
