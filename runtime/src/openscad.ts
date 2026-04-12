@@ -1,14 +1,20 @@
 export interface InitOptions {
-  noInitialRun: boolean;
+  noInitialRun?: boolean;
   print?: (text: string) => void;
   printErr?: (text: string) => void;
+  locateFile?: (path: string, prefix?: string) => string;
+  wasmBinary?: Uint8Array;
+  onRuntimeInitialized?: () => void;
+  onAbort?: (what: any) => void;
 }
 
 export interface OpenSCAD {
   callMain(args: Array<string>): number;
   FS: FS;
-  locateFile?: (path: string, prefix: string) => string;
+  locateFile?: (path: string, prefix?: string) => string;
+  wasmBinary?: Uint8Array;
   onRuntimeInitialized?: () => void;
+  onAbort?: (what: any) => void;
 }
 
 export interface FS {
@@ -46,8 +52,18 @@ async function OpenSCAD(options?: InitOptions): Promise<OpenSCAD> {
   await import(wasmModule + `#${Math.random()}`);
   delete globalThis.OpenSCAD;
 
-  await new Promise((resolve) => {
-    module.onRuntimeInitialized = () => resolve(null);
+  await new Promise((resolve, reject) => {
+    const originalOnRuntimeInitialized = module.onRuntimeInitialized;
+    module.onRuntimeInitialized = () => {
+      if (originalOnRuntimeInitialized) originalOnRuntimeInitialized();
+      resolve(null);
+    };
+
+    const originalOnAbort = module.onAbort;
+    module.onAbort = (what: any) => {
+      if (originalOnAbort) originalOnAbort(what);
+      reject(new Error("Emscripten aborted: " + String(what)));
+    };
   });
 
   return module as unknown as OpenSCAD;
