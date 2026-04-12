@@ -48,11 +48,7 @@ async function OpenSCAD(options?: InitOptions): Promise<OpenSCAD> {
     ...options,
   };
 
-  globalThis.OpenSCAD = module;
-  await import(wasmModule + `#${Math.random()}`);
-  delete globalThis.OpenSCAD;
-
-  await new Promise((resolve, reject) => {
+  const initPromise = new Promise((resolve, reject) => {
     const originalOnRuntimeInitialized = module.onRuntimeInitialized;
     module.onRuntimeInitialized = () => {
       if (originalOnRuntimeInitialized) originalOnRuntimeInitialized();
@@ -65,6 +61,17 @@ async function OpenSCAD(options?: InitOptions): Promise<OpenSCAD> {
       reject(new Error("Emscripten aborted: " + String(what)));
     };
   });
+
+  globalThis.OpenSCAD = module;
+  try {
+    await import(wasmModule + `#${Math.random()}`);
+  } catch (e) {
+    throw e;
+  } finally {
+    delete globalThis.OpenSCAD;
+  }
+
+  await initPromise;
 
   return module as unknown as OpenSCAD;
 }
