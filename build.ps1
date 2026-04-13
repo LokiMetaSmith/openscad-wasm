@@ -31,7 +31,7 @@ $workspacePath = (Get-Location).Path
 $mountPath = $workspacePath -replace '\\', '/'
 New-Item -ItemType Directory -Force -Path .\build | Out-Null
 
-& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/build/openscad.js /workspace/build/openscad.wasm.js && cp /home/build/build/openscad.wasm /workspace/build/ && if [ -f /home/build/build/openscad.wasm.map ]; then cp /home/build/build/openscad.wasm.map /workspace/build/; fi && cp /workspace/runtime/dist/* /workspace/build/"
+& $engine run --rm -v "${mountPath}/build:/workspace/build" openscad/wasm-release bash -c "cp /home/build/build/openscad.js /workspace/build/openscad.wasm.js && cp /home/build/build/openscad.wasm /workspace/build/ && if [ -f /home/build/build/openscad.wasm.map ]; then cp /home/build/build/openscad.wasm.map /workspace/build/; fi && cp /workspace/runtime/dist/* /workspace/build/ && cp /workspace/package.json /workspace/build/ 2>/dev/null || true"
 if ($LASTEXITCODE -ne 0) {
     Write-Host "Failed to extract artifacts." -ForegroundColor Red
     exit $LASTEXITCODE
