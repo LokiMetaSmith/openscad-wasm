@@ -31,6 +31,7 @@ export interface FS {
 
 declare module globalThis {
   let OpenSCAD: Partial<OpenSCAD> | undefined;
+  let Module: Partial<OpenSCAD> | undefined;
 }
 
 let wasmModule: string;
@@ -62,15 +63,34 @@ async function OpenSCAD(options?: InitOptions): Promise<OpenSCAD> {
     };
   });
 
+  // Emscripten might default to looking for 'Module' if 'EXPORT_NAME' isn't explicitly set in CMake
   globalThis.OpenSCAD = module;
+  globalThis.Module = module;
+
   try {
-    await import(wasmModule + `#${Math.random()}`);
+    const namespace = await import(wasmModule + `#${Math.random()}`);
+
+    // Grab the factory function. It will either be the ES6 default export or attached to the globals
+    const factory = namespace.default || globalThis.OpenSCAD || globalThis.Module;
+
+    if (typeof factory === 'function') {
+      // Execute the factory function to actually start Emscripten initialization
+      const instance = factory(module);
+
+      // If the factory returns a promise (common in newer Emscripten), wait for it
+      if (instance instanceof Promise) {
+        await instance;
+      }
+    }
   } catch (e) {
     throw e;
   } finally {
+    // Clean up globals
     delete globalThis.OpenSCAD;
+    delete globalThis.Module;
   }
 
+  // Wait for the specific Emscripten runtime ready event
   await initPromise;
 
   return module as unknown as OpenSCAD;
