@@ -77,24 +77,45 @@ deno test --allow-read --allow-write
 make test
 ```
 
+## Installation
+
+To use `openscad-wasm` in another local project, you can install it directly from your local filesystem using NPM.
+
+First, ensure you have built the project (`make build` or `.\build.ps1`). Then, in your other project, run:
+
+```bash
+npm install file:../path/to/openscad-wasm
+```
+
 ## API
 
-The project is an ES6 module. Simply import the module:
+The project is an ES6 module. Once installed, simply import the module into your application:
 
-```ts
+```javascript
+import OpenSCAD from "openscad-wasm";
+
+// OPTIONAL: add fonts to the FS
+import { addFonts } from "openscad-wasm/build/openscad.fonts.js";
+
+// OPTIONAL: add MCAD library to the FS
+import { addMCAD } from "openscad-wasm/build/openscad.mcad.js";
+
+const filename = "cube.stl";
+
+// Instantiate the application
+const instance = await OpenSCAD({noInitialRun: true});
+```
+
+### Example Usage in a Browser:
+
+```html
 <html>
 <head></head>
 <body>
 
 <script type="module">
 
-import OpenSCAD from "./openscad.js";
-
-// OPTIONAL: add fonts to the FS
-import { addFonts } from "./openscad.fonts.js";
-
-// OPTIONAL: add MCAD library to the FS
-import { addMCAD } from "./openscad.mcad.js";
+import OpenSCAD from "./build/openscad.js";
 
 const filename = "cube.stl";
 
